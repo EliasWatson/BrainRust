@@ -7,6 +7,7 @@ A [BrainF\*ck](https://en.wikipedia.org/wiki/Brainfuck) interpreter written in R
 | Version | Mandlebrot         |
 | ------- | ------------------ |
 | 1.0.0   | 70.377 s ± 1.522 s |
+| 1.1.0   | 12.239 s ± 0.076 s |
 
 ## Environment
 
