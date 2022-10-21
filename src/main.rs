@@ -1,11 +1,11 @@
 mod errors;
+mod interpreter;
 mod memory;
 mod program;
-mod interpreter;
 
 use clap::Parser;
 use interpreter::Interpreter;
-use std::{error::Error,  fs};
+use std::{error::Error, fs};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]

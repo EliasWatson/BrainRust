@@ -1,4 +1,4 @@
-use colored::*;
+use console::Style;
 use std::{cmp::min, fmt::Display};
 
 use crate::errors::{InterpreterError, InterpreterResult};
@@ -81,14 +81,15 @@ impl Program {
             width = radius
         );
 
+        let context_style = Style::new().white().on_black();
+        let current_style = Style::new().red().bold().on_black();
+
         format!(
             "{}{}{}",
-            before.white(),
-            current.red().bold(),
-            after.white()
+            context_style.apply_to(before),
+            current_style.apply_to(current),
+            context_style.apply_to(after)
         )
-        .on_black()
-        .to_string()
     }
 
     fn get_range_clamped(&self, start: isize, end: isize) -> String {
@@ -114,11 +115,13 @@ impl Program {
 
 impl Display for Program {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let index_style = Style::new().italic();
+
         write!(
             f,
             "({}) {:<6}",
             self.get_window(2),
-            format!("[{}]", self.index).italic()
+            index_style.apply_to(format!("[{}]", self.index))
         )
     }
 }
