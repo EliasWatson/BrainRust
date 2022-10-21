@@ -2,7 +2,7 @@ use std::{error::Error, fmt::Display, io, io::Write};
 
 use console::Term;
 
-use crate::{errors::InterpreterError, memory::Memory, program::Program};
+use crate::{commands::Command, errors::ParserError, memory::Memory, program::Program};
 
 #[derive(Debug)]
 pub struct Interpreter {
@@ -11,11 +11,11 @@ pub struct Interpreter {
 }
 
 impl Interpreter {
-    pub fn load_program(program_source: String, memory_size: usize) -> Self {
-        Self {
+    pub fn load_program(program_source: String, memory_size: usize) -> Result<Self, ParserError> {
+        Ok(Self {
             memory: Memory::new(memory_size),
-            program: Program::new(program_source),
-        }
+            program: Program::parse(program_source)?,
+        })
     }
 
     pub fn run(&mut self) -> Result<(), Box<dyn Error>> {
@@ -38,35 +38,31 @@ impl Interpreter {
     }
 
     fn step(&mut self, term: &Term) -> Result<bool, Box<dyn Error>> {
-        let op = match self.program.get() {
+        let command = match self.program.get() {
             Some(op) => op,
             None => return Ok(false),
         };
 
-        match op {
-            '>' => self.memory.next(),
-            '<' => self.memory.previous(),
-            '+' => self.memory.increment(),
-            '-' => self.memory.decrement(),
-            '.' => {
+        match command {
+            Command::Next(n) => self.memory.next(n),
+            Command::Previous(n) => self.memory.previous(n),
+            Command::Increment(n) => self.memory.increment(n),
+            Command::Decrement(n) => self.memory.decrement(n),
+            Command::Output => {
                 print!("{}", self.memory.get_char());
                 io::stdout().flush()?;
             }
-            ',' => term
-                .read_char()
-                .map(|c| self.memory.set_char(c))
-                .map_err(|_| InterpreterError::InputError)?,
-            '[' => {
+            Command::Input => term.read_char().map(|c| self.memory.set_char(c))?,
+            Command::LoopBegin(i) => {
                 if self.memory.is_zero() {
-                    self.program.skip_loop()?;
+                    self.program.jump(i);
                 }
             }
-            ']' => {
+            Command::LoopEnd(i) => {
                 if !self.memory.is_zero() {
-                    self.program.repeat_loop()?;
+                    self.program.jump(i);
                 }
             }
-            _ => {}
         }
 
         self.program.next();

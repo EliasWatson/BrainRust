@@ -14,24 +14,24 @@ impl Memory {
         }
     }
 
-    pub fn next(&mut self) {
-        self.index = (self.index + 1) % self.data.len();
+    pub fn next(&mut self, n: usize) {
+        self.index = (self.index + n) % self.data.len();
     }
 
-    pub fn previous(&mut self) {
-        self.index = if self.index == 0 {
-            self.data.len() - 1
+    pub fn previous(&mut self, n: usize) {
+        self.index = if n > self.index {
+            self.data.len() - (n - self.index)
         } else {
-            self.index - 1
+            self.index - n
         };
     }
 
-    pub fn increment(&mut self) {
-        self.data[self.index] = self.data[self.index].wrapping_add(1);
+    pub fn increment(&mut self, n: u8) {
+        self.data[self.index] = self.data[self.index].wrapping_add(n);
     }
 
-    pub fn decrement(&mut self) {
-        self.data[self.index] = self.data[self.index].wrapping_sub(1);
+    pub fn decrement(&mut self, n: u8) {
+        self.data[self.index] = self.data[self.index].wrapping_sub(n);
     }
 
     pub fn is_zero(&self) -> bool {

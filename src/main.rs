@@ -1,3 +1,4 @@
+mod commands;
 mod errors;
 mod interpreter;
 mod memory;
@@ -21,7 +22,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     match args.path {
         Some(path) => {
             let program_source = fs::read_to_string(path)?;
-            let mut interpreter = Interpreter::load_program(program_source, 30_000);
+            let mut interpreter = Interpreter::load_program(program_source, 30_000)?;
 
             if args.debug {
                 interpreter.run_logged()?;

@@ -1,22 +1,20 @@
 use std::{error::Error, fmt::Display};
 
-#[derive(Clone, Copy, Debug)]
-pub enum InterpreterError {
-    LoopTraversalError(usize),
-    InputError,
+#[derive(PartialEq, Eq, Clone, Copy, Debug)]
+pub enum ParserError {
+    IncompleteLoop(usize),
 }
 
-impl Display for InterpreterError {
+impl Display for ParserError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            InterpreterError::LoopTraversalError(program_counter) => write!(
+            ParserError::IncompleteLoop(program_counter) => write!(
                 f,
-                "matching loop bracket missing for character {}",
+                "matching loop bracket missing for character at index {}",
                 program_counter
             ),
-            InterpreterError::InputError => write!(f, "failed to read input"),
         }
     }
 }
 
-impl Error for InterpreterError {}
+impl Error for ParserError {}
