@@ -1,7 +1,7 @@
 use console::Style;
 use std::{cmp::min, fmt::Display};
 
-use crate::errors::{InterpreterError, InterpreterResult};
+use crate::errors::InterpreterError;
 
 #[derive(Debug)]
 pub struct Program {
@@ -29,7 +29,7 @@ impl Program {
         }
     }
 
-    pub fn skip_loop(&mut self) -> InterpreterResult<()> {
+    pub fn skip_loop(&mut self) -> Result<(), InterpreterError> {
         let mut loop_depth: isize = 0;
         for (offset, c) in self.chars[self.index..].iter().enumerate() {
             match *c {
@@ -47,7 +47,7 @@ impl Program {
         Err(InterpreterError::LoopTraversalError(self.index))
     }
 
-    pub fn repeat_loop(&mut self) -> InterpreterResult<()> {
+    pub fn repeat_loop(&mut self) -> Result<(), InterpreterError> {
         let mut loop_depth: isize = 0;
         for (offset, c) in self.chars[..=self.index].iter().rev().enumerate() {
             match *c {

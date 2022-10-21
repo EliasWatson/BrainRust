@@ -1,6 +1,8 @@
-use std::fmt::Display;
+use std::{error::Error, fmt::Display, io, io::Write};
 
-use crate::{errors::InterpreterResult, memory::Memory, program::Program};
+use console::Term;
+
+use crate::{errors::InterpreterError, memory::Memory, program::Program};
 
 #[derive(Debug)]
 pub struct Interpreter {
@@ -16,21 +18,26 @@ impl Interpreter {
         }
     }
 
-    pub fn run(&mut self) -> InterpreterResult<()> {
-        while self.step()? {}
+    pub fn run(&mut self) -> Result<(), Box<dyn Error>> {
+        let term = Term::stdout();
+
+        while self.step(&term)? {}
 
         Ok(())
     }
 
-    pub fn run_logged(&mut self) -> InterpreterResult<()> {
-        while self.step()? {
-            println!("{}", self);
+    pub fn run_logged(&mut self) -> Result<(), Box<dyn Error>> {
+        let term = Term::stdout();
+        let term_err = Term::stderr();
+
+        while self.step(&term)? {
+            term_err.write_line(&format!("{}", self))?;
         }
 
         Ok(())
     }
 
-    fn step(&mut self) -> InterpreterResult<bool> {
+    fn step(&mut self, term: &Term) -> Result<bool, Box<dyn Error>> {
         let op = match self.program.get() {
             Some(op) => op,
             None => return Ok(false),
@@ -41,8 +48,14 @@ impl Interpreter {
             '<' => self.memory.previous(),
             '+' => self.memory.increment(),
             '-' => self.memory.decrement(),
-            '.' => print!("{}", self.memory.get_char()),
-            ',' => todo!(),
+            '.' => {
+                print!("{}", self.memory.get_char());
+                io::stdout().flush()?;
+            }
+            ',' => term
+                .read_char()
+                .map(|c| self.memory.set_char(c))
+                .map_err(|_| InterpreterError::InputError)?,
             '[' => {
                 if self.memory.is_zero() {
                     self.program.skip_loop()?;

@@ -1,10 +1,9 @@
 use std::{error::Error, fmt::Display};
 
-pub type InterpreterResult<T> = Result<T, InterpreterError>;
-
 #[derive(Clone, Copy, Debug)]
 pub enum InterpreterError {
     LoopTraversalError(usize),
+    InputError,
 }
 
 impl Display for InterpreterError {
@@ -15,6 +14,7 @@ impl Display for InterpreterError {
                 "matching loop bracket missing for character {}",
                 program_counter
             ),
+            InterpreterError::InputError => write!(f, "failed to read input"),
         }
     }
 }

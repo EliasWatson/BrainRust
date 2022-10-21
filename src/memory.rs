@@ -41,6 +41,10 @@ impl Memory {
     pub fn get_char(&self) -> char {
         self.data[self.index] as char
     }
+
+    pub fn set_char(&mut self, c: char) {
+        self.data[self.index] = c as u8;
+    }
 }
 
 impl Display for Memory {
