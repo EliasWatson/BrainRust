@@ -103,27 +103,48 @@ impl Command {
     }
 
     fn is_multi(&self) -> bool {
-        match self {
-            Command::Next(_)
-            | Command::Previous(_)
-            | Command::Increment(_)
-            | Command::Decrement(_) => true,
-            _ => false,
-        }
+        matches!(
+            self,
+            Command::Next(_) | Command::Previous(_) | Command::Increment(_) | Command::Decrement(_)
+        )
     }
 }
 
 impl Display for Command {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Command::Next(n) => write!(f, ">{}", n),
-            Command::Previous(n) => write!(f, "<{}", n),
-            Command::Increment(n) => write!(f, "+{}", n),
-            Command::Decrement(n) => write!(f, "-{}", n),
+            Command::Next(n) => {
+                if *n == 1 {
+                    write!(f, ">")
+                } else {
+                    write!(f, ">{}", n)
+                }
+            }
+            Command::Previous(n) => {
+                if *n == 1 {
+                    write!(f, "<")
+                } else {
+                    write!(f, "<{}", n)
+                }
+            }
+            Command::Increment(n) => {
+                if *n == 1 {
+                    write!(f, "+")
+                } else {
+                    write!(f, "+{}", n)
+                }
+            }
+            Command::Decrement(n) => {
+                if *n == 1 {
+                    write!(f, "-")
+                } else {
+                    write!(f, "-{}", n)
+                }
+            }
             Command::Output => write!(f, "out"),
             Command::Input => write!(f, "in"),
-            Command::LoopBegin(i) => write!(f, "[{}", i),
-            Command::LoopEnd(i) => write!(f, "]{}", i),
+            Command::LoopBegin(_) => write!(f, "["),
+            Command::LoopEnd(_) => write!(f, "]"),
         }
     }
 }

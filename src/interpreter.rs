@@ -18,6 +18,13 @@ impl Interpreter {
         })
     }
 
+    pub fn log_parsed(&self) {
+        for command in &self.program.commands {
+            print!("{} ", command);
+        }
+        println!();
+    }
+
     pub fn run(&mut self) -> Result<(), Box<dyn Error>> {
         let term = Term::stdout();
 

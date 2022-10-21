@@ -8,7 +8,7 @@ use crate::{
 
 #[derive(Debug)]
 pub struct Program {
-    commands: Vec<Command>,
+    pub commands: Vec<Command>,
     index: usize,
 }
 

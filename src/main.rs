@@ -14,6 +14,8 @@ struct Args {
     path: Option<String>,
     #[arg(short, long)]
     debug: bool,
+    #[arg(short = 'p', long)]
+    log_parsed: bool,
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -23,6 +25,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         Some(path) => {
             let program_source = fs::read_to_string(path)?;
             let mut interpreter = Interpreter::load_program(program_source, 30_000)?;
+
+            if args.log_parsed {
+                interpreter.log_parsed();
+            }
 
             if args.debug {
                 interpreter.run_logged()?;
