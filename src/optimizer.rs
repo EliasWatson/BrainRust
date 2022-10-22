@@ -19,7 +19,30 @@ pub fn optimize(ast: Vec<CommandASTNode>) -> Vec<OptimizedASTNode> {
 }
 
 fn optimize_ast(ast: &mut Vec<OptimizedASTNode>) {
-    // TODO: AddWithOffset
+    if ast.len() >= 3 {
+        let mut i = 0;
+        while i < ast.len() - 2 {
+            let add_with_offset_data: Option<(isize, u8, isize)> = if let (
+                OptimizedASTNode::Move(offset_before),
+                OptimizedASTNode::Add(n),
+                OptimizedASTNode::Move(offset_after),
+            ) =
+                (&ast[i], &ast[i + 1], &ast[i + 2])
+            {
+                Some((*offset_before, *n, *offset_before + *offset_after))
+            } else {
+                None
+            };
+
+            if let Some((data_offset, n, move_offset)) = add_with_offset_data {
+                ast[i] = OptimizedASTNode::AddWithOffset(n, data_offset);
+                ast[i + 1] = OptimizedASTNode::Move(move_offset);
+                ast.remove(i + 2);
+            }
+
+            i += 1;
+        }
+    }
 
     for node in ast.iter_mut() {
         if node.is_zero_operation() {

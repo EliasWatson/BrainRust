@@ -49,8 +49,7 @@ impl Interpreter {
 
         match command {
             Command::Move(offset) => self.memory.move_index(offset),
-            Command::Add(n) => self.memory.add(n),
-            Command::AddWithOffset(n, offset) => self.memory.add_with_offset(n, offset),
+            Command::Add(n, offset) => self.memory.add_with_offset(n, offset),
             Command::Zero => self.memory.zero(),
             Command::Output => {
                 print!("{}", self.memory.get_char());

@@ -18,10 +18,6 @@ impl Memory {
         self.index = self.offset_index(offset);
     }
 
-    pub fn add(&mut self, n: u8) {
-        self.data[self.index] = self.data[self.index].wrapping_add(n);
-    }
-
     pub fn add_with_offset(&mut self, n: u8, offset: isize) {
         let index = self.offset_index(offset);
         self.data[index] = self.data[index].wrapping_add(n);
@@ -44,7 +40,9 @@ impl Memory {
     }
 
     fn offset_index(&self, offset: isize) -> usize {
-        if offset >= 0 {
+        if offset == 0 {
+            self.index
+        } else if offset > 0 {
             (self.index + offset as usize) % self.data.len()
         } else {
             let negative_offset = (-offset) as usize;
