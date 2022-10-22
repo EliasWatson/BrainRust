@@ -24,6 +24,11 @@ fn optimize_ast(ast: &mut Vec<OptimizedASTNode>) {
     for node in ast.iter_mut() {
         if node.is_zero_operation() {
             *node = OptimizedASTNode::Zero;
+            continue;
+        }
+
+        if let OptimizedASTNode::Loop(contents) = node {
+            optimize_ast(contents);
         }
     }
 }
