@@ -20,7 +20,12 @@ pub fn optimize(ast: Vec<CommandASTNode>) -> Vec<OptimizedASTNode> {
 
 fn optimize_ast(ast: &mut Vec<OptimizedASTNode>) {
     // TODO: AddWithOffset
-    // TODO: Zero
+
+    for node in ast.iter_mut() {
+        if node.is_zero_operation() {
+            *node = OptimizedASTNode::Zero;
+        }
+    }
 }
 
 fn optimized_ast_from_ast(ast: &Vec<CommandASTNode>) -> Vec<OptimizedASTNode> {
@@ -35,4 +40,23 @@ fn optimized_ast_from_ast(ast: &Vec<CommandASTNode>) -> Vec<OptimizedASTNode> {
             }
         })
         .collect()
+}
+
+impl OptimizedASTNode {
+    // Returns true for loops like [-] or [+]
+    fn is_zero_operation(&self) -> bool {
+        let contents = match self {
+            OptimizedASTNode::Loop(contents) => contents,
+            _ => return false,
+        };
+
+        if contents.len() > 1 {
+            return false;
+        }
+
+        match contents.last() {
+            Some(OptimizedASTNode::Add(_)) => true,
+            _ => false,
+        }
+    }
 }
