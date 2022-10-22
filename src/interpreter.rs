@@ -11,12 +11,14 @@ use crate::{
 pub struct Interpreter {
     memory: Memory,
     program: Program,
+    always_flush: bool,
 }
 
 impl Interpreter {
     pub fn load_program(
         program_source: String,
         memory_size: usize,
+        always_flush: bool,
         should_optimize: bool,
     ) -> Result<Self, ParserError> {
         let ast = parse_source(program_source)?;
@@ -30,6 +32,7 @@ impl Interpreter {
         Ok(Self {
             memory: Memory::new(memory_size),
             program,
+            always_flush,
         })
     }
 
@@ -53,7 +56,9 @@ impl Interpreter {
             Command::Zero => self.memory.zero(),
             Command::Output => {
                 print!("{}", self.memory.get_char());
-                io::stdout().flush()?;
+                if self.always_flush {
+                    io::stdout().flush()?;
+                }
             }
             Command::Input => term.read_char().map(|c| self.memory.set_char(c))?,
             Command::LoopBegin(i) => {
