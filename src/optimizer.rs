@@ -37,9 +37,15 @@ fn optimize_ast(ast: &mut Vec<OptimizedASTNode>) {
             };
 
             if let Some((data_offset, n, move_offset)) = add_with_offset_data {
-                ast[i] = OptimizedASTNode::AddWithOffset(n, data_offset);
-                ast[i + 1] = OptimizedASTNode::Move(move_offset);
                 ast.remove(i + 2);
+
+                if move_offset == 0 {
+                    ast.remove(i + 1);
+                } else {
+                    ast[i + 1] = OptimizedASTNode::Move(move_offset);
+                }
+
+                ast[i] = OptimizedASTNode::AddWithOffset(n, data_offset);
             }
 
             i += 1;
