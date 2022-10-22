@@ -1,8 +1,11 @@
-use std::{error::Error, fmt::Display, io, io::Write};
+use std::{error::Error, io, io::Write};
 
 use console::Term;
 
-use crate::{commands::Command, errors::ParserError, memory::Memory, program::Program};
+use crate::{
+    command_ast::parse_source, commands::Command, errors::ParserError, memory::Memory,
+    program::Program,
+};
 
 #[derive(Debug)]
 pub struct Interpreter {
@@ -14,32 +17,14 @@ impl Interpreter {
     pub fn load_program(program_source: String, memory_size: usize) -> Result<Self, ParserError> {
         Ok(Self {
             memory: Memory::new(memory_size),
-            program: Program::parse(program_source)?,
+            program: Program::from_ast(parse_source(program_source)?),
         })
-    }
-
-    pub fn log_parsed(&self) {
-        for command in &self.program.commands {
-            print!("{} ", command);
-        }
-        println!();
     }
 
     pub fn run(&mut self) -> Result<(), Box<dyn Error>> {
         let term = Term::stdout();
 
         while self.step(&term)? {}
-
-        Ok(())
-    }
-
-    pub fn run_logged(&mut self) -> Result<(), Box<dyn Error>> {
-        let term = Term::stdout();
-        let term_err = Term::stderr();
-
-        while self.step(&term)? {
-            term_err.write_line(&format!("{}", self))?;
-        }
 
         Ok(())
     }
@@ -51,10 +36,9 @@ impl Interpreter {
         };
 
         match command {
-            Command::Next(n) => self.memory.next(n),
-            Command::Previous(n) => self.memory.previous(n),
-            Command::Increment(n) => self.memory.increment(n),
-            Command::Decrement(n) => self.memory.decrement(n),
+            Command::Move(offset) => self.memory.move_index(offset),
+            Command::Add(n) => self.memory.add(n),
+            Command::Zero => self.memory.zero(),
             Command::Output => {
                 print!("{}", self.memory.get_char());
                 io::stdout().flush()?;
@@ -75,11 +59,5 @@ impl Interpreter {
         self.program.next();
 
         Ok(true)
-    }
-}
-
-impl Display for Interpreter {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}  |  {}", self.program, self.memory)
     }
 }

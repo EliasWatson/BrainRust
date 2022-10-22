@@ -14,24 +14,26 @@ impl Memory {
         }
     }
 
-    pub fn next(&mut self, n: usize) {
-        self.index = (self.index + n) % self.data.len();
-    }
-
-    pub fn previous(&mut self, n: usize) {
-        self.index = if n > self.index {
-            self.data.len() - (n - self.index)
+    pub fn move_index(&mut self, offset: isize) {
+        if offset >= 0 {
+            self.index = (self.index + offset as usize) % self.data.len();
         } else {
-            self.index - n
-        };
+            let negative_offset = (-offset) as usize;
+
+            if negative_offset > self.index {
+                self.index = self.data.len() - (negative_offset - self.index);
+            } else {
+                self.index = self.index - negative_offset;
+            }
+        }
     }
 
-    pub fn increment(&mut self, n: u8) {
+    pub fn add(&mut self, n: u8) {
         self.data[self.index] = self.data[self.index].wrapping_add(n);
     }
 
-    pub fn decrement(&mut self, n: u8) {
-        self.data[self.index] = self.data[self.index].wrapping_sub(n);
+    pub fn zero(&mut self) {
+        self.data[self.index] = 0;
     }
 
     pub fn is_zero(&self) -> bool {
