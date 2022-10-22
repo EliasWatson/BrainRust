@@ -15,21 +15,16 @@ impl Memory {
     }
 
     pub fn move_index(&mut self, offset: isize) {
-        if offset >= 0 {
-            self.index = (self.index + offset as usize) % self.data.len();
-        } else {
-            let negative_offset = (-offset) as usize;
-
-            if negative_offset > self.index {
-                self.index = self.data.len() - (negative_offset - self.index);
-            } else {
-                self.index = self.index - negative_offset;
-            }
-        }
+        self.index = self.offset_index(offset);
     }
 
     pub fn add(&mut self, n: u8) {
         self.data[self.index] = self.data[self.index].wrapping_add(n);
+    }
+
+    pub fn add_with_offset(&mut self, n: u8, offset: isize) {
+        let index = self.offset_index(offset);
+        self.data[index] = self.data[index].wrapping_add(n);
     }
 
     pub fn zero(&mut self) {
@@ -46,6 +41,20 @@ impl Memory {
 
     pub fn set_char(&mut self, c: char) {
         self.data[self.index] = c as u8;
+    }
+
+    fn offset_index(&self, offset: isize) -> usize {
+        if offset >= 0 {
+            (self.index + offset as usize) % self.data.len()
+        } else {
+            let negative_offset = (-offset) as usize;
+
+            if negative_offset > self.index {
+                self.data.len() - (negative_offset - self.index)
+            } else {
+                self.index - negative_offset
+            }
+        }
     }
 }
 

@@ -1,6 +1,7 @@
 use crate::{
     command_ast::CommandASTNode,
-    commands::{commands_from_ast, Command},
+    commands::{commands_from_ast, commands_from_optimized_ast, Command},
+    optimizer::OptimizedASTNode,
 };
 
 #[derive(Debug)]
@@ -13,6 +14,13 @@ impl Program {
     pub fn from_ast(ast: Vec<CommandASTNode>) -> Self {
         let mut commands = vec![];
         commands_from_ast(&mut commands, ast);
+
+        Self { commands, index: 0 }
+    }
+
+    pub fn from_optimized_ast(ast: Vec<OptimizedASTNode>) -> Self {
+        let mut commands = vec![];
+        commands_from_optimized_ast(&mut commands, ast);
 
         Self { commands, index: 0 }
     }

@@ -4,7 +4,7 @@ use console::Term;
 
 use crate::{
     command_ast::parse_source, commands::Command, errors::ParserError, memory::Memory,
-    program::Program,
+    optimizer::optimize, program::Program,
 };
 
 #[derive(Debug)]
@@ -14,10 +14,22 @@ pub struct Interpreter {
 }
 
 impl Interpreter {
-    pub fn load_program(program_source: String, memory_size: usize) -> Result<Self, ParserError> {
+    pub fn load_program(
+        program_source: String,
+        memory_size: usize,
+        should_optimize: bool,
+    ) -> Result<Self, ParserError> {
+        let ast = parse_source(program_source)?;
+        let program = if should_optimize {
+            Program::from_ast(ast)
+        } else {
+            let optimized_ast = optimize(ast);
+            Program::from_optimized_ast(optimized_ast)
+        };
+
         Ok(Self {
             memory: Memory::new(memory_size),
-            program: Program::from_ast(parse_source(program_source)?),
+            program,
         })
     }
 
@@ -38,6 +50,7 @@ impl Interpreter {
         match command {
             Command::Move(offset) => self.memory.move_index(offset),
             Command::Add(n) => self.memory.add(n),
+            Command::AddWithOffset(n, offset) => self.memory.add_with_offset(n, offset),
             Command::Zero => self.memory.zero(),
             Command::Output => {
                 print!("{}", self.memory.get_char());
