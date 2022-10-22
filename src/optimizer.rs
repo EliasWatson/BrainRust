@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use crate::command_ast::CommandASTNode;
 
 #[derive(PartialEq, Eq, Clone, Debug)]
@@ -86,5 +88,50 @@ impl OptimizedASTNode {
             Some(OptimizedASTNode::Add(_)) => true,
             _ => false,
         }
+    }
+
+    fn fmt_indented(
+        &self,
+        f: &mut std::fmt::Formatter<'_>,
+        indent_level: usize,
+    ) -> std::fmt::Result {
+        let indent = "\t".repeat(indent_level);
+        write!(f, "{}", indent)?;
+
+        match self {
+            OptimizedASTNode::Move(offset) => writeln!(f, "i += {};", offset),
+            OptimizedASTNode::Add(n) => writeln!(f, "data[i] += {};", u8_to_i8_string(*n)),
+            OptimizedASTNode::AddWithOffset(n, offset) => {
+                if *offset >= 0 {
+                    writeln!(f, "data[i + {}] += {};", offset, u8_to_i8_string(*n))
+                } else {
+                    writeln!(f, "data[i - {}] += {};", -offset, u8_to_i8_string(*n))
+                }
+            }
+            OptimizedASTNode::Zero => writeln!(f, "data[i] = 0;"),
+            OptimizedASTNode::Output => writeln!(f, "print(data[i]);"),
+            OptimizedASTNode::Input => writeln!(f, "data[i] = input();"),
+            OptimizedASTNode::Loop(contents) => {
+                writeln!(f, "while data[i] > 0 {{")?;
+                for node in contents {
+                    node.fmt_indented(f, indent_level + 1)?;
+                }
+                writeln!(f, "{}}}", indent)
+            }
+        }
+    }
+}
+
+impl Display for OptimizedASTNode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.fmt_indented(f, 0)
+    }
+}
+
+fn u8_to_i8_string(n: u8) -> String {
+    if n <= 128 {
+        format!("{}", n)
+    } else {
+        format!("-{}", !n + 1)
     }
 }

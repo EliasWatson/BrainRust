@@ -2,10 +2,7 @@ use std::{error::Error, io, io::Write};
 
 use console::Term;
 
-use crate::{
-    command_ast::parse_source, commands::Command, errors::ParserError, memory::Memory,
-    optimizer::optimize, program::Program,
-};
+use crate::{commands::Command, memory::Memory, program::Program};
 
 #[derive(Debug)]
 pub struct Interpreter {
@@ -15,25 +12,12 @@ pub struct Interpreter {
 }
 
 impl Interpreter {
-    pub fn load_program(
-        program_source: String,
-        memory_size: usize,
-        always_flush: bool,
-        should_optimize: bool,
-    ) -> Result<Self, ParserError> {
-        let ast = parse_source(program_source)?;
-        let program = if should_optimize {
-            Program::from_ast(ast)
-        } else {
-            let optimized_ast = optimize(ast);
-            Program::from_optimized_ast(optimized_ast)
-        };
-
-        Ok(Self {
+    pub fn load_program(program: Program, memory_size: usize, always_flush: bool) -> Self {
+        Self {
             memory: Memory::new(memory_size),
             program,
             always_flush,
-        })
+        }
     }
 
     pub fn run(&mut self) -> Result<(), Box<dyn Error>> {
