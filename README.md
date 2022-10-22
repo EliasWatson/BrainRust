@@ -10,6 +10,7 @@ A [BrainF\*ck](https://en.wikipedia.org/wiki/Brainfuck) interpreter written in R
 | 1.1.0   | 12.239 s ± 0.076 s |
 | 1.3.0   | 6.3440 s ± 0.149 s |
 | 1.3.2   | 6.1790 s ± 0.067 s |
+| 1.3.3   | 6.8400 s ± 0.069 s |
 
 ## Environment
 
